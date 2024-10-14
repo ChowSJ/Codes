@@ -10,11 +10,13 @@ import datetime
 # Alpha vantage has restriction on total number of API that can be made ina  day. It is 25. The counter tracks number of 
 # request
 
+st.set_page_config(layout='wide')
+
 if "api_counter" not in st.session_state:
     st.session_state['api_counter']=0
 
-def func_extract_info(function_call,symbol,api_key,datatype='csv'):
-    url= 'https://www.alphavantage.co/query?function={}&symbol={}&datatype={}&apikey={}'.format(function_call,symbol,datatype,api_key)
+def func_extract_info(function_call,symbol,api_key,datatype='csv',outputsize='full'):
+    url= 'https://www.alphavantage.co/query?function={}&symbol={}&datatype={}&apikey={}&outputsize={}'.format(function_call,symbol,datatype,api_key,outputsize)
     r=requests.get(url=url)
     data=io.StringIO(r.text)
     df=pd.read_csv(data)
@@ -38,7 +40,7 @@ with st.container(border=True):
         if st.session_state['symbol']:
             st.session_state['api_counter']+=1
             df_stock=func_extract_info(function_call='TIME_SERIES_DAILY',symbol=st.session_state['symbol'],api_key=st.session_state['api_key'])
-            placeholder_chart.line_chart(data=df_stock,x='timestamp',y='close',use_container_width=True)
+            placeholder_chart.line_chart(data=df_stock,x='timestamp',y=['open','close'],use_container_width=True)
 if st.session_state['api_counter']<1:
     st.empty()
 else:
